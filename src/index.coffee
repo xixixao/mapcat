@@ -2,12 +2,12 @@
 path = require('path')
 {SourceMapConsumer, SourceMapGenerator} = require('source-map')
 
-exports.cat = (inputMapFiles, outJSFile, outMapFile, maproot) ->
-    buffer = []
+exports.cat = (inputMapFiles, outJSFile, outMapFile, maproot, wrapper) ->
+    buffer = if wrapper then ['(function() {'] else []
     generator = new SourceMapGenerator
         file: outJSFile
 
-    lineOffset = 0
+    lineOffset = if wrapper then 1 else 0
     for f in inputMapFiles
         map = new SourceMapConsumer(readFileSync(f, 'utf-8'))
 
@@ -32,6 +32,9 @@ exports.cat = (inputMapFiles, outJSFile, outMapFile, maproot) ->
 
         # update line offset so we could start working with the next file
         lineOffset += src.split('\n').length
+
+    if wrapper
+        buffer.push('}).call(this);')
 
     if maproot == null
         buffer.push "//# sourceMappingURL=#{path.relative(path.dirname(outJSFile), outMapFile)}"

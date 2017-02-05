@@ -5,7 +5,6 @@
 
 var cat = require("../lib").cat;
 var optimist = require("optimist");
-var sys = require("sys");
 
 var ARGS = optimist
     .usage("$0 input1.map [input2.map ...] [options]\n")
@@ -16,8 +15,11 @@ var ARGS = optimist
         .alias("m", "mapout")
         .string("mapout")
 	.describe("maproot", "Specify root path for map files (default empty)")
-		.alias("r", "maproot")
-		.string("maproot")
+        .alias("r", "maproot")
+        .string("maproot")
+    .describe("wrapper", "Whether to wrap result in safety wrapper")
+		.alias("w", "wrapper")
+		.boolean("wrapper")
     .wrap(80)
     .argv;
 
@@ -25,10 +27,11 @@ var inputMapFiles = ARGS._ || [];
 var outMapFile = ARGS.mapout || 'out.map';
 var outJSFile = ARGS.jsout || 'out.js';
 var maproot = ARGS.maproot || null;
+var wrapper = ARGS.wrapper;
 
 if (! inputMapFiles.length) {
-    sys.puts(optimist.help());
+    console.log(optimist.help());
     process.exit(0);
 }
 
-cat(inputMapFiles, outJSFile, outMapFile, maproot);
+cat(inputMapFiles, outJSFile, outMapFile, maproot, wrapper);
